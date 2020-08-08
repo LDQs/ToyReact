@@ -3,6 +3,10 @@ class ElementWrapper {
         this.root = document.createElement(type);
     }
     setAttribute(name, value) {
+        if (name.match(/^on([\s\S]+)$/)) {
+            let eventName = RegExp.$1.replace(/^[\s\S]/,(s) => s.toLowerCase());
+            this.root.addEventListener(eventName, value);
+        }
         this.root.setAttribute(name,value);
     }
     appendChild(vchild) {
@@ -25,8 +29,10 @@ class TextWrapper {
 export class Component {
     constructor() {
         this.children = [];
+        this.props = Object.create(null);
     }
     setAttribute(name, value) {
+        this.props[name] = value;
         this[name] = value;
     }
     mountTo(parent) {
@@ -41,7 +47,7 @@ export class Component {
 export let ToyReact = {
     createElement(type, attributes, ...children) {
         let element;
-        if (typeof element === "string") {
+        if (typeof type === "string") {
             element = new ElementWrapper(type);
         } else {
             element = new type;
